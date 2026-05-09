@@ -94,11 +94,11 @@ export default function ShareLocationPage() {
         setCurrentAddress(addressStr);
         setAccuracy(acc);
       } else {
-        toast({ title: "Error", description: "Failed to create session.", position: "top-center" });
+        toast("Error", { description: "Failed to create session.", position: "top-center" });
       }
     } catch (err) {
       console.error("Init Error", err);
-      toast({ title: "Error", description: "Network error.", position: "top-center" });
+      toast("Error", { description: "Network error.", position: "top-center" });
     }
   }, [toast]);
 
@@ -155,13 +155,13 @@ export default function ShareLocationPage() {
         },
         (error) => {
           // console.error(error);
-          // toast({ title: "Location Error", description: "Please allow location access to share your live location." });
+          toast("Location Error", { description: "Please allow location access to share your live location." });
           setLoading(false);
         },
         { enableHighAccuracy: true }
       );
     } else {
-      toast({ title: "Error", description: "Geolocation not supported by your browser.", position: "top-center" });
+      toast("Error", { description: "Geolocation not supported by your browser.", position: "top-center" });
       setLoading(false);
     }
     
@@ -172,7 +172,7 @@ export default function ShareLocationPage() {
         fetch(`/api/sessions/${sessionRef.current}`, { method: "DELETE" }).catch(()=>null);
       }
     };
-  }, [startSharing, toast]);
+  }, [startSharing]);
 
   // Poll location updates to server
   useEffect(() => {
@@ -246,10 +246,10 @@ export default function ShareLocationPage() {
       setSessionCode("");
       sessionRef.current = null;
       setCurrentAddress("Tracking Stopped");
-      toast({ title: "Session Ended", description: "Your location is no longer shared.", position: "top-center" });
+      toast("Session Ended",{ description: "Your location is no longer shared.", position: "top-center" });
     } catch (err) {
       console.error(err);
-      toast({ title: "Error", description: "Failed to stop session.", position: "top-center" });
+      toast("Error",{ description: "Failed to stop session.", position: "top-center" });
     }
   };
 
@@ -421,7 +421,7 @@ export default function ShareLocationPage() {
                       <div className="flex justify-center p-6 bg-white rounded-2xl shadow-inner">
                         <QRCode
                           value={shareUrl}
-                          size={160}
+                          size={140}
                           bgColor="#ffffff"
                           fgColor="#0a0a0f"
                         />
@@ -472,7 +472,7 @@ export default function ShareLocationPage() {
               longer see your live location.
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter className="gap-2 sm:gap-0 mt-4">
+          <DialogFooter className="gap-4">
             <Button variant="outline" onClick={() => setShowStopDialog(false)}>
               Cancel
             </Button>

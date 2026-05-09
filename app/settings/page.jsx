@@ -65,7 +65,7 @@ export default function SettingsPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="flex items-center">
+                <div className="flex items-center justify-between">
                   <Label
                     htmlFor="notifications"
                     className="flex flex-col gap-1 items-start"
@@ -82,7 +82,7 @@ export default function SettingsPage() {
                   />
                 </div>
                 <Separator className="bg-border" />
-                <div className="flex items-center">
+                <div className="flex items-center justify-between">
                   <Label
                     htmlFor="location-alerts"
                     className="flex flex-col gap-1 items-start"
@@ -243,7 +243,7 @@ export default function SettingsPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
-                <Button variant="outline" className="w-full justify-start">
+                <Button variant="outline" className="w-full">
                   Sign In / Create Account
                 </Button>
                 <p className="text-xs text-muted-foreground text-center">
