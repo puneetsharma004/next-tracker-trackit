@@ -4,7 +4,7 @@ import { pusherServer } from '@/lib/pusher'
 
 export async function GET(req, { params }) {
   try {
-    const { code } = params
+    const { code } = await params
 
     if (!code || code.length !== 6) {
       return NextResponse.json(
@@ -36,7 +36,7 @@ export async function GET(req, { params }) {
 
 export async function DELETE(req, { params }) {
   try {
-    const { code } = params
+    const { code } = await params
 
     if (!code || code.length !== 6) {
       return NextResponse.json(
