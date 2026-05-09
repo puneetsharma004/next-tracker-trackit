@@ -103,6 +103,8 @@ function TrackPageContent() {
                   value={code}
                   onChange={handleCodeChange}
                   disabled={isLoading}
+                  inputMode="text"
+                  pattern="^[a-zA-Z0-9]+$"
                 >
                   <InputOTPGroup className="gap-2">
                     <InputOTPSlot

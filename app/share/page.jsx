@@ -54,7 +54,7 @@ export default function ShareLocationPage() {
   const sessionRef = useRef(null);
   const actualCoordsRef = useRef(null);
 
-  const startSharing = useCallback(async (lat, lng, acc) => {
+  const startSharing = useCallback(async (lat, lng, acc, speed = 0, batteryLevel = 100) => {
     try {
       const res = await fetch("/api/sessions/create", {
         method: "POST",
@@ -64,7 +64,8 @@ export default function ShareLocationPage() {
           initials: "ME",
           latitude: lat,
           longitude: lng,
-          battery: 100,
+          speed: `${speed} km/h`,
+          battery: batteryLevel,
         }),
       });
       
@@ -96,10 +97,20 @@ export default function ShareLocationPage() {
           const lat = position.coords.latitude;
           const lng = position.coords.longitude;
           const acc = Math.round(position.coords.accuracy);
-          setCoords({ lat, lng });
-          actualCoordsRef.current = { lat, lng, acc, speed: position.coords.speed || 0 };
+          const speed = position.coords.speed ? Math.round(position.coords.speed * 3.6) : 0;
           
-          await startSharing(lat, lng, acc);
+          let batteryLevel = 100;
+          try {
+            if ('getBattery' in navigator) {
+              const battery = await navigator.getBattery();
+              batteryLevel = Math.round(battery.level * 100);
+            }
+          } catch (e) {}
+
+          setCoords({ lat, lng });
+          actualCoordsRef.current = { lat, lng, acc, speed };
+          
+          await startSharing(lat, lng, acc, speed, batteryLevel);
           setLoading(false);
           
           // Watch for changes
@@ -142,10 +153,18 @@ export default function ShareLocationPage() {
   useEffect(() => {
     if (!isLive || !sessionCode) return;
     
-    const interval = setInterval(() => {
+    const interval = setInterval(async () => {
       if (!actualCoordsRef.current) return;
       const { lat, lng, speed } = actualCoordsRef.current;
       
+      let currentBattery = 100;
+      try {
+        if ('getBattery' in navigator) {
+          const battery = await navigator.getBattery();
+          currentBattery = Math.round(battery.level * 100);
+        }
+      } catch (e) {}
+
       // Push update to server
       fetch("/api/location/update", {
         method: "POST",
@@ -156,7 +175,7 @@ export default function ShareLocationPage() {
           longitude: lng,
           speed: `${speed} km/h`,
           distance: "Live tracking...",
-          battery: 95,
+          battery: currentBattery,
         }),
       }).catch(err => console.error("Update Error", err));
     }, 5000); // Every 5 seconds

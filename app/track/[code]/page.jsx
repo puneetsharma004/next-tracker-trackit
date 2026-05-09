@@ -147,7 +147,7 @@ export default function TrackerViewPage({ params }) {
   }
 
   return (
-     <div className="h-screen relative overflow-hidden">
+     <div className="h-[100dvh] relative overflow-hidden">
     {/* Map fills parent absolutely */}
     <LiveMap 
       latitude={trackerData.latitude} 
@@ -294,21 +294,21 @@ function TrackerDetails({
 
       {/* Stats grid */}
       <div className="grid grid-cols-3 gap-3">
-        <div className="bg-secondary/50 border border-border/50 rounded-xl p-4 text-center">
+        <div className="bg-card border border-border shadow-sm rounded-xl p-4 text-center">
           <Gauge className="w-6 h-6 text-primary mx-auto mb-2" />
           <p className="text-base font-semibold text-foreground">
             {trackerData.speed || "0 km/h"}
           </p>
           <p className="text-xs text-muted-foreground font-medium mt-1">Speed</p>
         </div>
-        <div className="bg-secondary/50 border border-border/50 rounded-xl p-4 text-center">
+        <div className="bg-card border border-border shadow-sm rounded-xl p-4 text-center">
           <Navigation className="w-6 h-6 text-primary mx-auto mb-2" />
           <p className="text-base font-semibold text-foreground">
             {trackerData.distance || "0 km"}
           </p>
           <p className="text-xs text-muted-foreground font-medium mt-1">Distance</p>
         </div>
-        <div className="bg-secondary/50 border border-border/50 rounded-xl p-4 text-center">
+        <div className="bg-card border border-border shadow-sm rounded-xl p-4 text-center">
           <Battery className="w-6 h-6 text-primary mx-auto mb-2" />
           <p className="text-base font-semibold text-foreground">
             {trackerData.battery ?? 100}%
