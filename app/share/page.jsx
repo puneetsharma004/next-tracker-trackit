@@ -288,7 +288,7 @@ export default function ShareLocationPage() {
       <Navbar />
 
       <main className="pt-24 min-h-screen pb-6">
-        <div className="flex flex-col lg:flex-row min-h-[calc(100vh-6rem)] px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto gap-6">
+        <div className="flex flex-col lg:flex-row min-h-[calc(100vh-9rem)] px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto gap-6">
           {/* Map Section */}
           <div className="flex-1 relative z-0 rounded-3xl overflow-hidden border border-border shadow-2xl">
             <LiveMap

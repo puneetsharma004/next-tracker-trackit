@@ -35,7 +35,7 @@ export default function SettingsPage() {
       <Navbar />
 
       <main className="pt-16 pb-8">
-        <div className="max-w-2xl mx-auto px-4">
+        <div className="max-w-5xl mx-auto px-4">
           {/* Header */}
           <div className="py-6">
             <Button variant="ghost" asChild className="mb-4 -ml-2">
@@ -65,10 +65,10 @@ export default function SettingsPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center">
                   <Label
                     htmlFor="notifications"
-                    className="flex flex-col gap-1"
+                    className="flex flex-col gap-1 items-start"
                   >
                     <span className="text-foreground">Push Notifications</span>
                     <span className="text-sm text-muted-foreground font-normal">
@@ -82,10 +82,10 @@ export default function SettingsPage() {
                   />
                 </div>
                 <Separator className="bg-border" />
-                <div className="flex items-center justify-between">
+                <div className="flex items-center">
                   <Label
                     htmlFor="location-alerts"
-                    className="flex flex-col gap-1"
+                    className="flex flex-col gap-1 items-start"
                   >
                     <span className="text-foreground">Location Alerts</span>
                     <span className="text-sm text-muted-foreground font-normal">
@@ -118,7 +118,7 @@ export default function SettingsPage() {
                 <div className="flex items-center justify-between">
                   <Label
                     htmlFor="session-duration"
-                    className="flex flex-col gap-1"
+                    className="flex flex-col gap-1 items-start"
                   >
                     <span className="text-foreground">
                       Default Session Duration
@@ -147,7 +147,7 @@ export default function SettingsPage() {
                 <div className="flex items-center justify-between">
                   <Label
                     htmlFor="high-accuracy"
-                    className="flex flex-col gap-1"
+                    className="flex flex-col gap-1 items-start"
                   >
                     <span className="text-foreground">High Accuracy Mode</span>
                     <span className="text-sm text-muted-foreground font-normal">
@@ -180,7 +180,7 @@ export default function SettingsPage() {
               </CardHeader>
               <CardContent>
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="dark-mode" className="flex flex-col gap-1">
+                  <Label htmlFor="dark-mode" className="flex flex-col gap-1 items-start">
                     <span className="text-foreground">Dark Mode</span>
                     <span className="text-sm text-muted-foreground font-normal">
                       Enable dark theme for better visibility

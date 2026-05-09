@@ -12,7 +12,7 @@ export default function HomePage() {
       <Navbar />
 
       <main className="relative flex flex-col items-center justify-center min-h-screen px-4 pt-24 pb-12">
-        <div className="max-w-4xl mx-auto text-center space-y-8">
+        <div className="max-w-5xl mx-auto text-center space-y-8">
           {/* Hero content */}
           <div className="space-y-6">
             <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-foreground text-balance">
