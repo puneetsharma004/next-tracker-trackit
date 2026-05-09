@@ -8,9 +8,10 @@ import {
   QrCode,
   Signal,
   Square,
+  Play,
 } from "lucide-react";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import dynamic from "next/dynamic";
 import { LiveBadge } from "@/components/live-badge";
 import { Navbar } from "@/components/navbar";
@@ -55,53 +56,53 @@ export default function ShareLocationPage() {
   const sessionRef = useRef(null);
   const actualCoordsRef = useRef(null);
 
+  const startSharing = useCallback(async (lat, lng, acc) => {
+    try {
+      const res = await fetch("/api/sessions/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: "My Live Location",
+          initials: "ME",
+          latitude: lat,
+          longitude: lng,
+          battery: 100,
+        }),
+      });
+      
+      const data = await res.json();
+      
+      if (data.success) {
+        setSessionCode(data.session.code);
+        sessionRef.current = data.session.code;
+        setIsLive(true);
+        setCurrentAddress("Location Shared Active");
+        setAccuracy(acc);
+      } else {
+        toast({ title: "Error", description: "Failed to create session." });
+      }
+    } catch (err) {
+      console.error("Init Error", err);
+      toast({ title: "Error", description: "Network error." });
+    }
+  }, [toast]);
+
   // Initialize session and geolocation
   useEffect(() => {
     let watchId;
 
-    const initSession = async (lat, lng, acc) => {
-      try {
-        const res = await fetch("/api/sessions/create", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            name: "My Live Location",
-            initials: "ME",
-            latitude: lat,
-            longitude: lng,
-            battery: 100,
-          }),
-        });
-        
-        const data = await res.json();
-        
-        if (data.success) {
-          setSessionCode(data.session.code);
-          sessionRef.current = data.session.code;
-          setIsLive(true);
-          setCurrentAddress("Location Shared Active");
-          setAccuracy(acc);
-        } else {
-          toast({ title: "Error", description: "Failed to create session." });
-        }
-      } catch (err) {
-        console.error("Init Error", err);
-        toast({ title: "Error", description: "Network error." });
-      } finally {
-        setLoading(false);
-      }
-    };
-
     if ("geolocation" in navigator) {
       // Get initial position to start session
       navigator.geolocation.getCurrentPosition(
-        (position) => {
+        async (position) => {
           const lat = position.coords.latitude;
           const lng = position.coords.longitude;
           const acc = Math.round(position.coords.accuracy);
           setCoords({ lat, lng });
           actualCoordsRef.current = { lat, lng, acc, speed: position.coords.speed || 0 };
-          initSession(lat, lng, acc);
+          
+          await startSharing(lat, lng, acc);
+          setLoading(false);
           
           // Watch for changes
           watchId = navigator.geolocation.watchPosition(
@@ -137,7 +138,7 @@ export default function ShareLocationPage() {
         fetch(`/api/sessions/${sessionRef.current}`, { method: "DELETE" }).catch(()=>null);
       }
     };
-  }, [toast]);
+  }, [startSharing, toast]);
 
   // Poll location updates to server
   useEffect(() => {
@@ -191,10 +192,18 @@ export default function ShareLocationPage() {
       setShowStopDialog(false);
       setSessionCode("");
       sessionRef.current = null;
+      setCurrentAddress("Tracking Stopped");
       toast({ title: "Session Ended", description: "Your location is no longer shared." });
     } catch (err) {
       console.error(err);
       toast({ title: "Error", description: "Failed to stop session." });
+    }
+  };
+
+  const handleStartSharingClick = () => {
+    if (actualCoordsRef.current) {
+      const { lat, lng, acc } = actualCoordsRef.current;
+      startSharing(lat, lng, acc);
     }
   };
 
@@ -359,20 +368,29 @@ export default function ShareLocationPage() {
                   )}
                 </div>
 
-                {/* Stop Sharing Button */}
-                <Button
-                  variant="destructive"
-                  onClick={() => setShowStopDialog(true)}
-                  className="w-full h-12 font-medium"
-                  disabled={!isLive}
-                >
-                  <Square className="mr-2 h-4 w-4 fill-current" />
-                  Stop Sharing
-                </Button>
+                {/* Stop/Start Sharing Button */}
+                {isLive ? (
+                  <Button
+                    variant="destructive"
+                    onClick={() => setShowStopDialog(true)}
+                    className="w-full h-12 font-medium shadow-lg shadow-destructive/20"
+                  >
+                    <Square className="mr-2 h-4 w-4 fill-current" />
+                    Stop Sharing
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={handleStartSharingClick}
+                    className="w-full h-12 font-medium bg-[#10b981] hover:bg-[#059669] text-white shadow-lg shadow-emerald-500/20"
+                  >
+                    <Play className="mr-2 h-4 w-4 fill-current" />
+                    Start Sharing
+                  </Button>
+                )}
 
                 {!isLive && (
                   <p className="text-center text-sm text-muted-foreground font-medium bg-secondary/50 p-3 rounded-lg">
-                    Session ended. Your location is no longer being shared.
+                    Session ended. Click start to generate a new live session code.
                   </p>
                 )}
               </CardContent>

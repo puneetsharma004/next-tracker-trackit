@@ -76,25 +76,27 @@ export default function LiveMap({
 
   return (
     <div className={`relative ${className} z-0`}>
-      <MapContainer 
-        center={[latitude, longitude]} 
-        zoom={15} 
-        scrollWheelZoom={true} 
-        className="w-full h-full z-0"
-        zoomControl={false}
-      >
-        <TileLayer
-          attribution={MAP_ATTRIBUTION}
-          url={MAP_TILE_URL}
-        />
-        {showMarker && (
-          <Marker 
-            position={[latitude, longitude]} 
-            icon={createPulseIcon("#10b981")} // Emerald color for live tracking
+      <div className="absolute inset-0 z-0">
+        <MapContainer 
+          center={[latitude, longitude]} 
+          zoom={15} 
+          scrollWheelZoom={true} 
+          className="w-full h-full"
+          zoomControl={false}
+        >
+          <TileLayer
+            attribution={MAP_ATTRIBUTION}
+            url={MAP_TILE_URL}
           />
-        )}
-        <RecenterMap lat={latitude} lng={longitude} />
-      </MapContainer>
+          {showMarker && (
+            <Marker 
+              position={[latitude, longitude]} 
+              icon={createPulseIcon("#10b981")} // Emerald color for live tracking
+            />
+          )}
+          <RecenterMap lat={latitude} lng={longitude} />
+        </MapContainer>
+      </div>
       
       {/* UI Overlays */}
       {children && (
