@@ -5,14 +5,14 @@ import { cn } from "@/lib/utils";
 export function MapBackground({ className, children, showMarker = false }) {
   return (
     <div className={cn("relative overflow-hidden bg-background", className)}>
-      {/* Dark map gradient background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950" />
+      {/* Map gradient background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-background via-muted/30 to-background" />
 
       {/* Grid lines overlay */}
-      <div className="absolute inset-0 map-grid-bg opacity-60" />
+      <div className="absolute inset-0 map-grid-bg" />
 
       {/* Subtle radial gradient for depth */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-slate-800/20 via-transparent to-transparent" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-emerald-500/10 via-transparent to-transparent dark:from-emerald-900/20" />
 
       {/* Animated route lines */}
       <svg
@@ -52,21 +52,7 @@ export function MapBackground({ className, children, showMarker = false }) {
         />
       </svg>
 
-      {/* Location marker */}
-      {showMarker && (
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-          <div className="relative">
-            {/* Accuracy circle */}
-            <div className="absolute -inset-12 rounded-full bg-primary/10 animate-pulse" />
-            <div className="absolute -inset-8 rounded-full bg-primary/20" />
-
-            {/* Center marker */}
-            <div className="relative w-6 h-6 rounded-full bg-primary flex items-center justify-center animate-glow">
-              <div className="w-2 h-2 rounded-full bg-primary-foreground" />
-            </div>
-          </div>
-        </div>
-      )}
+      
 
       {/* Content overlay */}
       <div className="relative z-10">{children}</div>

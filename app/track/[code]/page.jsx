@@ -15,6 +15,7 @@ import Link from "next/link";
 import { use, useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { LiveBadge } from "@/components/live-badge";
+import { Navbar } from "@/components/navbar";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -96,7 +97,7 @@ export default function TrackerViewPage({ params }) {
     });
 
     channel.bind("session-ended", (data) => {
-      toast({ title: "Session Ended", description: data.message });
+      toast({ title: "Session Ended", description: data.message, position: "top-center" });
       setTrackerData(null); // Clear data to show ended screen
     });
 
@@ -154,6 +155,7 @@ export default function TrackerViewPage({ params }) {
     toast("Location copied successfully", {
       description: `${trackerData.latitude}, ${trackerData.longitude}`,
       variant: "default",
+      position: "top-center" 
     })
   };
 
@@ -213,25 +215,12 @@ export default function TrackerViewPage({ params }) {
       className="absolute inset-0"
     />
       
-      {/* Top-left: Logo + Live badge */}
-      <div className="fixed top-4 left-4 z-20 pointer-events-auto">
-        <Link href="/" className="flex items-center gap-3">
-          <div className="glass rounded-xl px-4 py-2 flex items-center gap-3 shadow-lg border border-border/50">
-            <div className="relative">
-              <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center shadow-inner">
-                <MapPin className="w-4 h-4 text-primary-foreground" />
-              </div>
-            </div>
-            <span className="text-lg font-semibold text-foreground tracking-tight">
-              TrackIt
-            </span>
-            <LiveBadge size="sm" />
-          </div>
-        </Link>
-      </div>
+      <Navbar>
+        <LiveBadge size="sm" />
+      </Navbar>
 
       {/* Top-right: Session info card */}
-      <div className="fixed top-4 right-4 z-20 pointer-events-auto hidden sm:block">
+      <div className="fixed top-24 right-4 z-20 pointer-events-auto hidden md:block">
         <Card className="glass border-border/50 p-4 w-64 shadow-lg backdrop-blur-md">
           <div className="flex items-center gap-3">
             <Avatar className="h-10 w-10 border-2 border-primary/20 shadow-sm">
@@ -309,7 +298,7 @@ export default function TrackerViewPage({ params }) {
       </div>
 
       {/* Desktop Bottom Panel */}
-      <div className="fixed bottom-6 left-6 right-6 z-20 hidden lg:block pointer-events-none">
+      <div className="fixed bottom-6 right-6 z-20 hidden lg:block pointer-events-none">
         <Card className="glass border-border/50 p-6 max-w-2xl mx-auto shadow-2xl backdrop-blur-xl pointer-events-auto rounded-2xl">
           <TrackerDetails
             trackerData={trackerData}

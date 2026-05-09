@@ -54,7 +54,20 @@ export default function ShareLocationPage() {
   const sessionRef = useRef(null);
   const actualCoordsRef = useRef(null);
 
-  const startSharing = useCallback(async (lat, lng, acc, speed = 0, batteryLevel = 100) => {
+  const getAddressFromCoords = async (latitude, longitude) => {
+    try {
+      const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
+      const data = await response.json();
+      if (data && data.display_name) {
+        return data.display_name;
+      }
+    } catch (err) {
+      console.error("Reverse geocoding error:", err);
+    }
+    return "Live Location Active";
+  };
+
+  const startSharing = useCallback(async (lat, lng, acc, speed = 0, batteryLevel = 100, addressStr = "Live Location Active") => {
     try {
       const res = await fetch("/api/sessions/create", {
         method: "POST",
@@ -66,6 +79,7 @@ export default function ShareLocationPage() {
           longitude: lng,
           speed: `${speed} km/h`,
           battery: batteryLevel,
+          address: addressStr,
         }),
       });
       
@@ -75,7 +89,7 @@ export default function ShareLocationPage() {
         setSessionCode(data.session.code);
         sessionRef.current = data.session.code;
         setIsLive(true);
-        setCurrentAddress("Location Shared Active");
+        setCurrentAddress(addressStr);
         setAccuracy(acc);
       } else {
         toast({ title: "Error", description: "Failed to create session." });
@@ -107,10 +121,13 @@ export default function ShareLocationPage() {
             }
           } catch (e) {}
 
+          const fetchedAddress = await getAddressFromCoords(lat, lng);
+          setCurrentAddress(fetchedAddress);
+
           setCoords({ lat, lng });
-          actualCoordsRef.current = { lat, lng, acc, speed };
+          actualCoordsRef.current = { lat, lng, acc, speed, address: fetchedAddress };
           
-          await startSharing(lat, lng, acc, speed, batteryLevel);
+          await startSharing(lat, lng, acc, speed, batteryLevel, fetchedAddress);
           setLoading(false);
           
           // Watch for changes
@@ -122,7 +139,13 @@ export default function ShareLocationPage() {
               const speed = pos.coords.speed ? Math.round(pos.coords.speed * 3.6) : 0; // m/s to km/h
               setCoords({ lat: newLat, lng: newLng });
               setAccuracy(newAcc);
-              actualCoordsRef.current = { lat: newLat, lng: newLng, acc: newAcc, speed };
+              actualCoordsRef.current = { 
+                ...actualCoordsRef.current,
+                lat: newLat, 
+                lng: newLng, 
+                acc: newAcc, 
+                speed 
+              };
             },
             // (err) => console.error(err),
             { enableHighAccuracy: true, maximumAge: 0, timeout: 5000 }
@@ -176,6 +199,7 @@ export default function ShareLocationPage() {
           speed: `${speed} km/h`,
           distance: "Live tracking...",
           battery: currentBattery,
+          address: actualCoordsRef.current?.address || "Live Location Active",
         }),
       }).catch(err => console.error("Update Error", err));
     }, 5000); // Every 5 seconds
@@ -263,10 +287,10 @@ export default function ShareLocationPage() {
     <div className="min-h-screen bg-background">
       <Navbar />
 
-      <main className="pt-16 min-h-screen">
-        <div className="flex flex-col lg:flex-row min-h-[calc(100vh-4rem)]">
+      <main className="pt-24 min-h-screen pb-6">
+        <div className="flex flex-col lg:flex-row min-h-[calc(100vh-6rem)] px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto gap-6">
           {/* Map Section */}
-          <div className="flex-1 relative z-0">
+          <div className="flex-1 relative z-0 rounded-3xl overflow-hidden border border-border shadow-2xl">
             <LiveMap
               latitude={coords.lat}
               longitude={coords.lng}
@@ -304,8 +328,8 @@ export default function ShareLocationPage() {
           </div>
 
           {/* Control Panel */}
-          <div className="w-full lg:w-96 p-4 lg:p-6 space-y-4 lg:border-l border-border bg-background z-10">
-            <Card className="bg-card border-border shadow-xl">
+          <div className="w-full lg:w-[400px] flex flex-col space-y-4 z-10">
+            <Card className="bg-card border-border shadow-xl rounded-3xl flex-1">
               <CardHeader className="pb-4">
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-lg text-foreground">

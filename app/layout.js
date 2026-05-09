@@ -51,6 +51,7 @@ export default function RootLayout({ children }) {
     >
       <body className="font-sans antialiased min-h-screen">
         <Toaster />
+        
         {children}
         {process.env.NODE_ENV === "production" && <Analytics />}
       </body>

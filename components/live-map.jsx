@@ -38,6 +38,17 @@ const createPulseIcon = (color = "#3b82f6") => {
 // Component to handle auto-panning when coordinates change
 function RecenterMap({ lat, lng, viewerLat, viewerLng }) {
   const map = useMap();
+
+  useEffect(() => {
+    // Invalidate size on mount to fix gray map issue
+    const timer1 = setTimeout(() => map.invalidateSize(), 100);
+    const timer2 = setTimeout(() => map.invalidateSize(), 500);
+    return () => {
+      clearTimeout(timer1);
+      clearTimeout(timer2);
+    };
+  }, [map]);
+
   useEffect(() => {
     if (lat && lng) {
       if (viewerLat && viewerLng) {
@@ -92,6 +103,7 @@ export default function LiveMap({
           zoom={15} 
           scrollWheelZoom={true} 
           className="w-full h-full"
+          style={{ width: '100%', height: '100%', minHeight: '400px' }}
           zoomControl={false}
         >
           <TileLayer
