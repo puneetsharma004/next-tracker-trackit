@@ -8,7 +8,7 @@ import {
   QrCode,
   Signal,
   Square,
-  Play,
+  Play, Share2, ChevronUp, Link,
 } from "lucide-react";
 import { toast } from "sonner"
 import { useEffect, useState, useRef, useCallback } from "react";
@@ -26,6 +26,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import QRCode from "react-qr-code";
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
 
 // Dynamically import LiveMap with SSR disabled
 const LiveMap = dynamic(() => import("@/components/live-map"), { 
@@ -47,7 +48,8 @@ export default function ShareLocationPage() {
   const [currentAddress, setCurrentAddress] = useState("Fetching location...");
   const [accuracy, setAccuracy] = useState(0);
   const [loading, setLoading] = useState(true);
-  
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
   // Coordinate State for Map
   const [coords, setCoords] = useState(null);
 
@@ -288,7 +290,7 @@ export default function ShareLocationPage() {
       <Navbar />
 
       <main className="pt-24 min-h-screen pb-6">
-        <div className="flex flex-col lg:flex-row min-h-[calc(100vh-9rem)] px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto gap-6">
+        <div className="flex flex-col lg:flex-row h-full lg:min-h-[calc(100vh-9rem)] px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto gap-6">
           {/* Map Section */}
           <div className="flex-1 relative z-0 rounded-3xl overflow-hidden border border-border shadow-2xl">
             <LiveMap
@@ -328,7 +330,7 @@ export default function ShareLocationPage() {
           </div>
 
           {/* Control Panel */}
-          <div className="w-full lg:w-[400px] flex flex-col space-y-4 z-10">
+          <div className="w-full lg:w-[400px] flex flex-col space-y-4 z-10 hidden lg:block">
             <Card className="bg-card border-border shadow-xl rounded-3xl flex-1">
               <CardHeader className="pb-4">
                 <div className="flex items-center justify-between">
@@ -478,6 +480,163 @@ export default function ShareLocationPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <div className="fixed bottom-0 left-0 right-0 z-20 lg:hidden">
+        <Drawer open={drawerOpen} onOpenChange={setDrawerOpen}>
+          
+          {/* Peek bar — always visible at bottom */}
+          <DrawerTrigger asChild>
+            <div className="glass border-t border-border/50 rounded-t-3xl p-5 cursor-pointer shadow-[0_-8px_30px_rgba(0,0,0,0.12)]">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Share2 className="w-5 h-5 text-primary" />
+                  <div>
+                    <p className="font-semibold text-foreground">Share Your Location</p>
+                    <p className="text-sm text-muted-foreground">Code: {sessionCode}</p>
+                  </div>
+                </div>
+                <ChevronUp className="h-6 w-6 text-muted-foreground" />
+              </div>
+            </div>
+          </DrawerTrigger>
+
+          {/* Full drawer content */}
+          <DrawerContent className="bg-card border-border">
+            <DrawerHeader className="pb-2">
+              <DrawerTitle>Share Details</DrawerTitle>
+            </DrawerHeader>
+            <div className="p-4 space-y-4">
+              {/* Control Panel */}
+          <div className="w-full lg:w-[400px] flex flex-col space-y-4 z-10 lg:hidden block">
+            <Card className="bg-card border-border shadow-xl rounded-3xl flex-1">
+              <CardHeader className="pb-4">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-lg text-foreground">
+                    Your Live Session
+                  </CardTitle>
+                  {isLive && <LiveBadge size="sm" />}
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* Session Code */}
+                <div className="space-y-2">
+                  <label className="text-sm text-muted-foreground font-medium">
+                    Session Code
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 bg-secondary/50 border border-border rounded-lg p-4 text-center">
+                      <span className="font-mono text-3xl font-bold tracking-[0.3em] text-foreground">
+                        {sessionCode || "ENDED"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Copy buttons */}
+                <div className="grid grid-cols-2 gap-3">
+                  <Button
+                    variant="outline"
+                    onClick={copyCode}
+                    className="w-full h-12"
+                    disabled={!isLive}
+                  >
+                    {copiedCode ? (
+                      <>
+                        <Check className="mr-2 h-4 w-4 text-primary" />
+                        Copied!
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="mr-2 h-4 w-4" />
+                        Copy Code
+                      </>
+                    )}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={copyLink}
+                    className="w-full h-12"
+                    disabled={!isLive}
+                  >
+                    {copiedLink ? (
+                      <>
+                        <Check className="mr-2 h-4 w-4 text-primary" />
+                        Copied!
+                      </>
+                    ) : (
+                      <>
+                        <LinkIcon className="mr-2 h-4 w-4" />
+                        Copy Link
+                      </>
+                    )}
+                  </Button>
+                </div>
+
+                {/* QR Code Section */}
+                  <div className="space-y-3">
+                    <Button
+                      variant="secondary"
+                      onClick={() => setShowQR(!showQR)}
+                      className="w-full h-12 transition-all duration-300"
+                      disabled={!isLive}
+                    >
+                      <QrCode className="mr-2 h-4 w-4" />
+                      {showQR ? "Hide QR Code" : "Show QR Code"}
+                    </Button>
+
+                    <div
+                      className={`
+                        overflow-hidden transition-all duration-500 ease-in-out
+                        ${showQR && isLive
+                          ? "max-h-96 opacity-100 scale-100 translate-y-0"
+                          : "max-h-0 opacity-0 scale-95 -translate-y-2"
+                        }
+                      `}
+                    >
+                      <div className="flex justify-center p-6 bg-white rounded-2xl shadow-inner">
+                        <QRCode
+                          value={shareUrl}
+                          size={160}
+                          bgColor="#ffffff"
+                          fgColor="#0a0a0f"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                {/* Stop/Start Sharing Button */}
+                {isLive ? (
+                  <Button
+                    variant="destructive"
+                    onClick={() => setShowStopDialog(true)}
+                    className="w-full h-12 font-medium shadow-lg shadow-destructive/20"
+                  >
+                    <Square className="mr-2 h-4 w-4 fill-current" />
+                    Stop Sharing
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={handleStartSharingClick}
+                    className="w-full h-12 font-medium bg-[#10b981] hover:bg-[#059669] text-white shadow-lg shadow-emerald-500/20"
+                  >
+                    <Play className="mr-2 h-4 w-4 fill-current" />
+                    Start Sharing
+                  </Button>
+                )}
+
+                {!isLive && (
+                  <p className="text-center text-sm text-muted-foreground font-medium bg-secondary/50 p-3 rounded-lg">
+                    Session ended. Click start to generate a new live session code.
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+            </div>
+          </DrawerContent>
+
+        </Drawer>
+      </div>
     </div>
   );
 }
