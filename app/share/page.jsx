@@ -94,11 +94,11 @@ export default function ShareLocationPage() {
         setCurrentAddress(addressStr);
         setAccuracy(acc);
       } else {
-        toast({ title: "Error", description: "Failed to create session." });
+        toast({ title: "Error", description: "Failed to create session.", position: "top-center" });
       }
     } catch (err) {
       console.error("Init Error", err);
-      toast({ title: "Error", description: "Network error." });
+      toast({ title: "Error", description: "Network error.", position: "top-center" });
     }
   }, [toast]);
 
@@ -161,7 +161,7 @@ export default function ShareLocationPage() {
         { enableHighAccuracy: true }
       );
     } else {
-      toast({ title: "Error", description: "Geolocation not supported by your browser." });
+      toast({ title: "Error", description: "Geolocation not supported by your browser.", position: "top-center" });
       setLoading(false);
     }
     
@@ -221,6 +221,7 @@ export default function ShareLocationPage() {
     toast("Code copied successfully", {
           description: sessionCode,
           variant: "default",
+          position: "top-center"
     })
   };
 
@@ -231,6 +232,7 @@ export default function ShareLocationPage() {
     toast("Link copied successfully", {
           description: shareUrl,
           variant: "default",
+          position: "top-center"
     })
   };
 
@@ -244,10 +246,10 @@ export default function ShareLocationPage() {
       setSessionCode("");
       sessionRef.current = null;
       setCurrentAddress("Tracking Stopped");
-      toast({ title: "Session Ended", description: "Your location is no longer shared." });
+      toast({ title: "Session Ended", description: "Your location is no longer shared.", position: "top-center" });
     } catch (err) {
       console.error(err);
-      toast({ title: "Error", description: "Failed to stop session." });
+      toast({ title: "Error", description: "Failed to stop session.", position: "top-center" });
     }
   };
 
