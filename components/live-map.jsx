@@ -75,7 +75,7 @@ export default function LiveMap({
   const MAP_ATTRIBUTION = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>';
 
   return (
-    <div className={`relative ${className} z-0`}>
+    <div className={`relative w-full h-full overflow-hidden ${className} z-0`}>
       <div className="absolute inset-0 z-0">
         <MapContainer 
           center={[latitude, longitude]} 

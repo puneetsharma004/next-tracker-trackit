@@ -10,7 +10,7 @@ import {
   Square,
   Play,
 } from "lucide-react";
-
+import { toast } from "sonner"
 import { useEffect, useState, useRef, useCallback } from "react";
 import dynamic from "next/dynamic";
 import { LiveBadge } from "@/components/live-badge";
@@ -26,7 +26,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import QRCode from "react-qr-code";
-import { useToast } from "@/hooks/use-toast";
 
 // Dynamically import LiveMap with SSR disabled
 const LiveMap = dynamic(() => import("@/components/live-map"), { 
@@ -51,8 +50,7 @@ export default function ShareLocationPage() {
   
   // Coordinate State for Map
   const [coords, setCoords] = useState(null);
-  
-  const { toast } = useToast();
+
   const sessionRef = useRef(null);
   const actualCoordsRef = useRef(null);
 
@@ -115,13 +113,13 @@ export default function ShareLocationPage() {
               setAccuracy(newAcc);
               actualCoordsRef.current = { lat: newLat, lng: newLng, acc: newAcc, speed };
             },
-            (err) => console.error(err),
+            // (err) => console.error(err),
             { enableHighAccuracy: true, maximumAge: 0, timeout: 5000 }
           );
         },
         (error) => {
-          console.error(error);
-          toast({ title: "Location Error", description: "Please allow location access to share your live location." });
+          // console.error(error);
+          // toast({ title: "Location Error", description: "Please allow location access to share your live location." });
           setLoading(false);
         },
         { enableHighAccuracy: true }
@@ -175,12 +173,20 @@ export default function ShareLocationPage() {
     await navigator.clipboard.writeText(sessionCode);
     setCopiedCode(true);
     setTimeout(() => setCopiedCode(false), 2000);
+    toast("Code copied successfully", {
+          description: sessionCode,
+          variant: "default",
+    })
   };
 
   const copyLink = async () => {
     await navigator.clipboard.writeText(shareUrl);
     setCopiedLink(true);
     setTimeout(() => setCopiedLink(false), 2000);
+    toast("Link copied successfully", {
+          description: shareUrl,
+          variant: "default",
+    })
   };
 
   const stopSharing = async () => {
@@ -345,28 +351,36 @@ export default function ShareLocationPage() {
                 </div>
 
                 {/* QR Code Section */}
-                <div className="space-y-3">
-                  <Button
-                    variant="secondary"
-                    onClick={() => setShowQR(!showQR)}
-                    className="w-full h-12"
-                    disabled={!isLive}
-                  >
-                    <QrCode className="mr-2 h-4 w-4" />
-                    {showQR ? "Hide QR Code" : "Show QR Code"}
-                  </Button>
+                  <div className="space-y-3">
+                    <Button
+                      variant="secondary"
+                      onClick={() => setShowQR(!showQR)}
+                      className="w-full h-12 transition-all duration-300"
+                      disabled={!isLive}
+                    >
+                      <QrCode className="mr-2 h-4 w-4" />
+                      {showQR ? "Hide QR Code" : "Show QR Code"}
+                    </Button>
 
-                  {showQR && isLive && (
-                    <div className="flex justify-center p-6 bg-white rounded-xl shadow-inner">
-                      <QRCode
-                        value={shareUrl}
-                        size={160}
-                        bgColor="#ffffff"
-                        fgColor="#0a0a0f"
-                      />
+                    <div
+                      className={`
+                        overflow-hidden transition-all duration-500 ease-in-out
+                        ${showQR && isLive
+                          ? "max-h-96 opacity-100 scale-100 translate-y-0"
+                          : "max-h-0 opacity-0 scale-95 -translate-y-2"
+                        }
+                      `}
+                    >
+                      <div className="flex justify-center p-6 bg-white rounded-2xl shadow-inner">
+                        <QRCode
+                          value={shareUrl}
+                          size={160}
+                          bgColor="#ffffff"
+                          fgColor="#0a0a0f"
+                        />
+                      </div>
                     </div>
-                  )}
-                </div>
+                  </div>
 
                 {/* Stop/Start Sharing Button */}
                 {isLive ? (

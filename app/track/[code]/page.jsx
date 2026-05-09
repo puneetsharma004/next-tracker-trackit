@@ -26,7 +26,8 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer";
 import { getPusherClient } from "@/lib/pusher";
-import { useToast } from "@/hooks/use-toast";
+
+import { toast } from "sonner"
 
 // Dynamically import LiveMap with SSR disabled
 const LiveMap = dynamic(() => import("@/components/live-map"), { 
@@ -44,7 +45,6 @@ export default function TrackerViewPage({ params }) {
   const [isLoading, setIsLoading] = useState(true);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [copiedLocation, setCopiedLocation] = useState(false);
-  const { toast } = useToast();
 
   useEffect(() => {
     // Fetch initial tracker data
@@ -98,6 +98,10 @@ export default function TrackerViewPage({ params }) {
     );
     setCopiedLocation(true);
     setTimeout(() => setCopiedLocation(false), 2000);
+    toast("Location copied successfully", {
+      description: `${trackerData.latitude}, ${trackerData.longitude}`,
+      variant: "default",
+    })
   };
 
   const openDirections = () => {
@@ -111,7 +115,7 @@ export default function TrackerViewPage({ params }) {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center relative">
-        <LiveMap showMarker={false} className="absolute inset-0 w-full h-full opacity-30" />
+        <LiveMap showMarker={false} className="w-full h-full opacity-30" />
         <div className="relative z-10 text-center space-y-4">
           <div className="w-12 h-12 border-3 border-primary/30 border-t-primary rounded-full animate-spin mx-auto" />
           <p className="text-muted-foreground font-medium">
@@ -125,7 +129,7 @@ export default function TrackerViewPage({ params }) {
   if (!trackerData) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center relative">
-        <LiveMap showMarker={false} className="absolute inset-0 w-full h-full opacity-30" />
+        <LiveMap showMarker={false} className="w-full h-full opacity-30" />
         <Card className="relative z-10 p-8 bg-card/80 backdrop-blur-xl border-border shadow-2xl text-center space-y-6 max-w-sm w-full mx-4">
           <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-2">
             <Navigation className="w-8 h-8 text-muted-foreground opacity-50" />
@@ -143,13 +147,14 @@ export default function TrackerViewPage({ params }) {
   }
 
   return (
-    <div className="min-h-screen relative flex flex-col">
-      <LiveMap 
-        latitude={trackerData.latitude} 
-        longitude={trackerData.longitude} 
-        showMarker={true}
-        className="absolute inset-0 w-full h-full"
-      />
+     <div className="h-screen relative overflow-hidden">
+    {/* Map fills parent absolutely */}
+    <LiveMap 
+      latitude={trackerData.latitude} 
+      longitude={trackerData.longitude} 
+      showMarker={true}
+      className="absolute inset-0"
+    />
       
       {/* Top-left: Logo + Live badge */}
       <div className="fixed top-4 left-4 z-20 pointer-events-auto">

@@ -1,6 +1,7 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
+import { Toaster } from "@/components/ui/sonner";
 
 const geist = Geist({
   subsets: ["latin"],
@@ -49,6 +50,7 @@ export default function RootLayout({ children }) {
       className={`${geist.variable} ${geistMono.variable} bg-background`}
     >
       <body className="font-sans antialiased min-h-screen">
+        <Toaster />
         {children}
         {process.env.NODE_ENV === "production" && <Analytics />}
       </body>
