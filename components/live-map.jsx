@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { MapContainer, TileLayer, Marker, useMap } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Polyline, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
@@ -36,23 +36,33 @@ const createPulseIcon = (color = "#3b82f6") => {
 };
 
 // Component to handle auto-panning when coordinates change
-function RecenterMap({ lat, lng }) {
+function RecenterMap({ lat, lng, viewerLat, viewerLng }) {
   const map = useMap();
   useEffect(() => {
     if (lat && lng) {
-      map.setView([lat, lng], map.getZoom(), {
-        animate: true,
-        pan: { duration: 1 }
-      });
+      if (viewerLat && viewerLng) {
+        // Fit bounds to show both markers
+        const bounds = L.latLngBounds([lat, lng], [viewerLat, viewerLng]);
+        map.fitBounds(bounds, { padding: [50, 50], animate: true, maxZoom: 15 });
+      } else {
+        map.setView([lat, lng], map.getZoom(), {
+          animate: true,
+          pan: { duration: 1 }
+        });
+      }
     }
-  }, [lat, lng, map]);
+  }, [lat, lng, viewerLat, viewerLng, map]);
   return null;
 }
 
 export default function LiveMap({ 
   latitude = 12.9716, 
-  longitude = 77.5946, 
-  showMarker = true, 
+  longitude = 77.5946,
+  viewerLatitude = null,
+  viewerLongitude = null,
+  showMarker = true,
+  showViewer = false,
+  showPath = false,
   className = "h-full w-full",
   children 
 }) {
@@ -94,7 +104,22 @@ export default function LiveMap({
               icon={createPulseIcon("#10b981")} // Emerald color for live tracking
             />
           )}
-          <RecenterMap lat={latitude} lng={longitude} />
+          {showViewer && viewerLatitude && viewerLongitude && (
+            <Marker 
+              position={[viewerLatitude, viewerLongitude]} 
+              icon={createPulseIcon("#3b82f6")} // Blue color for viewer
+            />
+          )}
+          {showPath && viewerLatitude && viewerLongitude && (
+            <Polyline 
+              positions={[[latitude, longitude], [viewerLatitude, viewerLongitude]]} 
+              color="#3b82f6" 
+              weight={3} 
+              dashArray="5, 10" 
+              opacity={0.7}
+            />
+          )}
+          <RecenterMap lat={latitude} lng={longitude} viewerLat={viewerLatitude} viewerLng={viewerLongitude} />
         </MapContainer>
       </div>
       

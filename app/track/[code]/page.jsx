@@ -45,6 +45,21 @@ export default function TrackerViewPage({ params }) {
   const [isLoading, setIsLoading] = useState(true);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [copiedLocation, setCopiedLocation] = useState(false);
+  const [viewerLocation, setViewerLocation] = useState(null);
+  const [calculatedDistance, setCalculatedDistance] = useState(null);
+
+  // Haversine formula
+  const getDistanceFromLatLonInKm = (lat1, lon1, lat2, lon2) => {
+    const R = 6371; // Radius of the earth in km
+    const dLat = (lat2 - lat1) * (Math.PI / 180);
+    const dLon = (lon2 - lon1) * (Math.PI / 180);
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) *
+      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c; // Distance in km
+  };
 
   useEffect(() => {
     // Fetch initial tracker data
@@ -90,6 +105,44 @@ export default function TrackerViewPage({ params }) {
       pusher.unbind_all();
     };
   }, [code, toast]);
+
+  // Track viewer's own location
+  useEffect(() => {
+    let watchId;
+    if ("geolocation" in navigator) {
+      watchId = navigator.geolocation.watchPosition(
+        (pos) => {
+          setViewerLocation({
+            lat: pos.coords.latitude,
+            lng: pos.coords.longitude,
+          });
+        },
+        (err) => console.error("Error getting viewer location:", err),
+        { enableHighAccuracy: true, maximumAge: 0, timeout: 5000 }
+      );
+    }
+    return () => {
+      if (watchId) navigator.geolocation.clearWatch(watchId);
+    };
+  }, []);
+
+  // Calculate distance when either location changes
+  useEffect(() => {
+    if (trackerData?.latitude && trackerData?.longitude && viewerLocation) {
+      const dist = getDistanceFromLatLonInKm(
+        viewerLocation.lat,
+        viewerLocation.lng,
+        trackerData.latitude,
+        trackerData.longitude
+      );
+      // Format to 2 decimal places if > 1km, or meters if < 1km
+      if (dist < 1) {
+        setCalculatedDistance(`${Math.round(dist * 1000)} m`);
+      } else {
+        setCalculatedDistance(`${dist.toFixed(2)} km`);
+      }
+    }
+  }, [trackerData?.latitude, trackerData?.longitude, viewerLocation]);
 
   const copyLocation = async () => {
     if (!trackerData) return;
@@ -152,6 +205,10 @@ export default function TrackerViewPage({ params }) {
     <LiveMap 
       latitude={trackerData.latitude} 
       longitude={trackerData.longitude} 
+      viewerLatitude={viewerLocation?.lat}
+      viewerLongitude={viewerLocation?.lng}
+      showViewer={true}
+      showPath={true}
       showMarker={true}
       className="absolute inset-0"
     />
@@ -194,7 +251,7 @@ export default function TrackerViewPage({ params }) {
           <div className="mt-3 pt-3 border-t border-border flex items-center justify-between text-xs text-muted-foreground font-medium">
             <div className="flex items-center gap-1.5">
               <Navigation className="w-3.5 h-3.5 text-primary" />
-              <span>{trackerData.distance} away</span>
+              <span>{calculatedDistance || "Calculating..."} away</span>
             </div>
             <div className="flex items-center gap-1.5">
               <Clock className="w-3.5 h-3.5" />
@@ -218,12 +275,12 @@ export default function TrackerViewPage({ params }) {
                   </Avatar>
                   <div>
                     <p className="font-semibold text-foreground text-lg">
-                      {trackerData.name}
+                      {trackerData.name === "My Live Location" ? "Target Device" : trackerData.name}
                     </p>
                     <p className="text-sm text-muted-foreground flex items-center gap-1.5 mt-0.5">
                       <MapPin className="w-3.5 h-3.5 text-primary" />
                       <span className="truncate max-w-[200px]">
-                        {trackerData.address || "Live Location"}
+                        {trackerData.address || "Live Location Active"}
                       </span>
                     </p>
                   </div>
@@ -256,6 +313,7 @@ export default function TrackerViewPage({ params }) {
         <Card className="glass border-border/50 p-6 max-w-2xl mx-auto shadow-2xl backdrop-blur-xl pointer-events-auto rounded-2xl">
           <TrackerDetails
             trackerData={trackerData}
+            calculatedDistance={calculatedDistance}
             onCopyLocation={copyLocation}
             onGetDirections={openDirections}
             copiedLocation={copiedLocation}
@@ -268,6 +326,7 @@ export default function TrackerViewPage({ params }) {
 
 function TrackerDetails({
   trackerData,
+  calculatedDistance,
   onCopyLocation,
   onGetDirections,
   copiedLocation,
@@ -283,7 +342,7 @@ function TrackerDetails({
         </Avatar>
         <div className="flex-1">
           <p className="text-xl font-semibold text-foreground">
-            {trackerData.name}
+            {trackerData.name === "My Live Location" ? "Target Device" : trackerData.name}
           </p>
           <p className="text-sm text-muted-foreground flex items-center gap-1.5 mt-1">
             <MapPin className="w-4 h-4 text-primary" />
@@ -304,7 +363,7 @@ function TrackerDetails({
         <div className="bg-card border border-border shadow-sm rounded-xl p-4 text-center">
           <Navigation className="w-6 h-6 text-primary mx-auto mb-2" />
           <p className="text-base font-semibold text-foreground">
-            {trackerData.distance || "0 km"}
+            {calculatedDistance || "0 km"}
           </p>
           <p className="text-xs text-muted-foreground font-medium mt-1">Distance</p>
         </div>
