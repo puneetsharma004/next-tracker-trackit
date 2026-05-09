@@ -291,10 +291,10 @@ export default function ShareLocationPage() {
     <div className="min-h-screen bg-background">
       <Navbar />
 
-      <main className="pt-24 min-h-screen pb-6">
-        <div className="flex flex-col lg:flex-row h-full lg:min-h-[calc(100vh-9rem)] px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto gap-6">
+      <main className="pt-0 lg:pt-24 min-h-screen pb-6">
+        <div className="flex flex-col lg:flex-row h-[100dvh] lg:h-full lg:min-h-[calc(100vh-9rem)] px-0 lg:px-8 max-w-7xl mx-auto gap-6">
           {/* Map Section */}
-          <div className="flex-1 relative z-0 rounded-3xl overflow-hidden border border-border shadow-2xl">
+          <div className="flex-1 relative z-0 rounded-0 lg:rounded-3xl overflow-hidden border border-border shadow-2xl">
             <LiveMap
               latitude={coords.lat}
               longitude={coords.lng}
@@ -302,7 +302,7 @@ export default function ShareLocationPage() {
               className="h-full min-h-[50vh] lg:min-h-full w-full"
             >
               {/* Bottom bar overlay */}
-              <div className="absolute bottom-0 left-0 right-0 p-4 pointer-events-auto">
+              <div className="lg:absolute bottom-0 hiiden left-0 right-0 p-4 pointer-events-auto">
                 <div className="glass rounded-xl p-4 flex flex-wrap items-center gap-4 text-sm shadow-xl backdrop-blur-xl border border-border">
                   <div className="flex items-center gap-2">
                     <Signal
@@ -484,6 +484,32 @@ export default function ShareLocationPage() {
       </Dialog>
 
       <div className="fixed bottom-0 left-0 right-0 z-20 lg:hidden">
+        <div className="absolute bottom-20 left-0 right-0 p-4 pointer-events-auto">
+                <div className="glass rounded-xl p-4 flex flex-wrap items-center gap-4 text-sm shadow-xl backdrop-blur-xl border border-border">
+                  <div className="flex items-center gap-2">
+                    <Signal
+                      className={`w-4 h-4 ${accuracy > 0 ? "text-primary" : "text-muted-foreground"}`}
+                    />
+                    <span className="text-muted-foreground font-medium">
+                      Accuracy: {accuracy > 0 ? `±${accuracy}m` : "..."}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div
+                      className={`w-2 h-2 rounded-full ${isLive ? "bg-primary animate-pulse" : "bg-destructive"}`}
+                    />
+                    <span className="text-muted-foreground font-medium">
+                      GPS {isLive ? "Active" : "Inactive"}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 flex-1 min-w-0">
+                    <MapPin className="w-4 h-4 text-primary shrink-0" />
+                    <span className="text-foreground font-medium truncate">
+                      {currentAddress}
+                    </span>
+                  </div>
+                </div>
+              </div>
         <Drawer open={drawerOpen} onOpenChange={setDrawerOpen}>
           
           {/* Peek bar — always visible at bottom */}
