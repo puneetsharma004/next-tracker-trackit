@@ -34,3 +34,19 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+
+
+## Stitch Instructions
+
+Get the images and code for the following Stitch project's screens:
+
+## Project
+Title: Next-Gen Live Tracking App
+ID: 15333598019853586332
+
+## Screens:
+1. LiveTrack Web Interface
+    ID: 803ac0b9e90b4325956909c0a66d6ae0
+
+Use a utility like `curl -L` to download the hosted URLs.
