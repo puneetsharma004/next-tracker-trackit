@@ -50,22 +50,22 @@ const LiveMap = dynamic(() => import("@/components/live-map"), {
 // ── Main Page ────────────────────────────────────────────────────────────────
 export default function ShareLocationPage() {
   const [sessionCode, setSessionCode] = useState("");
-  const [isLive, setIsLive]           = useState(false);
+  const [isLive, setIsLive] = useState(false);
   const [showStopDialog, setShowStopDialog] = useState(false);
-  const [showQR, setShowQR]           = useState(false);
-  const [copiedCode, setCopiedCode]   = useState(false);
-  const [copiedLink, setCopiedLink]   = useState(false);
+  const [showQR, setShowQR] = useState(false);
+  const [copiedCode, setCopiedCode] = useState(false);
+  const [copiedLink, setCopiedLink] = useState(false);
   const [currentAddress, setCurrentAddress] = useState("Fetching location...");
-  const [accuracy, setAccuracy]       = useState(0);
-  const [loading, setLoading]         = useState(true);
-  const [drawerOpen, setDrawerOpen]   = useState(false);
-  const [coords, setCoords]           = useState(null);
+  const [accuracy, setAccuracy] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [coords, setCoords] = useState(null);
 
   // Refs — mutable values that should NOT trigger re-renders
-  const sessionRef      = useRef(null);   // session code for cleanup
+  const sessionRef = useRef(null);   // session code for cleanup
   const actualCoordsRef = useRef(null);   // latest GPS coords for polling
-  const batteryRef      = useRef(100);    // cached battery level
-  const lastGeocodeRef  = useRef(0);      // timestamp of last reverse-geocode
+  const batteryRef = useRef(null);    // cached battery level
+  const lastGeocodeRef = useRef(0);      // timestamp of last reverse-geocode
 
   // ── Battery: fetch once on mount, update via event listener ──────────────
   useEffect(() => {
@@ -75,6 +75,7 @@ export default function ShareLocationPage() {
         batteryRef.current = Math.round(battery.level * 100);
       });
     });
+    // If getBattery doesn't exist or rejects → batteryRef stays null → that's correct
   }, []);
 
   // ── Reverse geocoding via axios ───────────────────────────────────────────
@@ -95,13 +96,13 @@ export default function ShareLocationPage() {
     async (lat, lng, acc, speed = 0, addressStr = "Live Location Active") => {
       try {
         const { data } = await axios.post("/api/sessions/create", {
-          name:      "My Live Location",
-          initials:  "ME",
-          latitude:  lat,
+          name: "My Live Location",
+          initials: "ME",
+          latitude: lat,
           longitude: lng,
-          speed:     `${speed} km/h`,
-          battery:   batteryRef.current,   // reads cached ref — no extra API call
-          address:   addressStr,
+          speed: `${speed} km/h`,
+          battery: batteryRef.current,   // reads cached ref — no extra API call
+          address: addressStr,
         });
 
         if (data.success) {
@@ -135,9 +136,9 @@ export default function ShareLocationPage() {
 
     navigator.geolocation.getCurrentPosition(
       async (position) => {
-        const lat   = position.coords.latitude;
-        const lng   = position.coords.longitude;
-        const acc   = Math.round(position.coords.accuracy);
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+        const acc = Math.round(position.coords.accuracy);
         const speed = position.coords.speed
           ? Math.round(position.coords.speed * 3.6)
           : 0;
@@ -161,9 +162,9 @@ export default function ShareLocationPage() {
         // ── watchPosition: tracks movement in the background ──────────────
         watchId = navigator.geolocation.watchPosition(
           (pos) => {
-            const newLat   = pos.coords.latitude;
-            const newLng   = pos.coords.longitude;
-            const newAcc   = Math.round(pos.coords.accuracy);
+            const newLat = pos.coords.latitude;
+            const newLng = pos.coords.longitude;
+            const newAcc = Math.round(pos.coords.accuracy);
             const newSpeed = pos.coords.speed
               ? Math.round(pos.coords.speed * 3.6)
               : 0;
@@ -179,9 +180,9 @@ export default function ShareLocationPage() {
             setAccuracy(newAcc);
             actualCoordsRef.current = {
               ...actualCoordsRef.current,
-              lat:   newLat,
-              lng:   newLng,
-              acc:   newAcc,
+              lat: newLat,
+              lng: newLng,
+              acc: newAcc,
               speed: newSpeed,
             };
 
@@ -232,13 +233,13 @@ export default function ShareLocationPage() {
       // ✅ FIX: reads batteryRef.current — no getBattery() call per tick
       axios
         .post("/api/location/update", {
-          code:      sessionCode,
-          latitude:  lat,
+          code: sessionCode,
+          latitude: lat,
           longitude: lng,
-          speed:     `${speed} km/h`,
-          distance:  "Live tracking...",
-          battery:   batteryRef.current,
-          address:   address ?? "Live Location Active",
+          speed: `${speed} km/h`,
+          distance: "Live tracking...",
+          battery: batteryRef.current,
+          address: address ?? "Live Location Active",
         })
         .catch((err) => console.error("Update Error", err));
     }, 5000);
@@ -445,9 +446,8 @@ function StatusBar({ accuracy, isLive, currentAddress }) {
       </div>
       <div className="flex items-center gap-2">
         <div
-          className={`w-2 h-2 rounded-full ${
-            isLive ? "bg-primary animate-pulse" : "bg-destructive"
-          }`}
+          className={`w-2 h-2 rounded-full ${isLive ? "bg-primary animate-pulse" : "bg-destructive"
+            }`}
         />
         <span className="text-muted-foreground font-medium">
           GPS {isLive ? "Active" : "Inactive"}
@@ -538,11 +538,10 @@ function ControlPanel({
             </Button>
 
             <div
-              className={`overflow-hidden transition-all duration-500 ease-in-out ${
-                showQR && isLive
+              className={`overflow-hidden transition-all duration-500 ease-in-out ${showQR && isLive
                   ? "max-h-96 opacity-100 scale-100 translate-y-0"
                   : "max-h-0 opacity-0 scale-95 -translate-y-2"
-              }`}
+                }`}
             >
               <div className="flex justify-center p-6 bg-white rounded-2xl shadow-inner">
                 <QRCode value={shareUrl} size={160} bgColor="#ffffff" fgColor="#0a0a0f" />

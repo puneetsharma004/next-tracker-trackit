@@ -42,14 +42,14 @@ const LiveMap = dynamic(() => import("@/components/live-map"), {
 
 // ── Haversine formula — outside component so it's not recreated on every render
 function getDistanceFromLatLon(lat1, lon1, lat2, lon2) {
-  const R    = 6371; // Earth radius in km
+  const R = 6371; // Earth radius in km
   const dLat = ((lat2 - lat1) * Math.PI) / 180;
   const dLon = ((lon2 - lon1) * Math.PI) / 180;
   const a =
     Math.sin(dLat / 2) ** 2 +
     Math.cos((lat1 * Math.PI) / 180) *
-      Math.cos((lat2 * Math.PI) / 180) *
-      Math.sin(dLon / 2) ** 2;
+    Math.cos((lat2 * Math.PI) / 180) *
+    Math.sin(dLon / 2) ** 2;
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
@@ -65,13 +65,13 @@ const ACCURACY_GOOD_METRES = 50;
 export default function TrackerViewPage({ params }) {
   const { code } = use(params);
 
-  const [trackerData, setTrackerData]           = useState(null);
-  const [isLoading, setIsLoading]               = useState(true);
-  const [drawerOpen, setDrawerOpen]             = useState(false);
-  const [copiedLocation, setCopiedLocation]     = useState(false);
-  const [viewerLocation, setViewerLocation]     = useState(null);
+  const [trackerData, setTrackerData] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [copiedLocation, setCopiedLocation] = useState(false);
+  const [viewerLocation, setViewerLocation] = useState(null);
   const [calculatedDistance, setCalculatedDistance] = useState(null);
-  const [gpsAccuracy, setGpsAccuracy]           = useState(null); // viewer's GPS accuracy
+  const [gpsAccuracy, setGpsAccuracy] = useState(null); // viewer's GPS accuracy
 
   // ── Fetch initial session + subscribe to Pusher ───────────────────────────
   useEffect(() => {
@@ -92,9 +92,9 @@ export default function TrackerViewPage({ params }) {
     fetchSession();
 
     // ── Pusher realtime updates ───────────────────────────────────────────
-    const pusher      = getPusherClient();
+    const pusher = getPusherClient();
     const channelName = `session-${code.toUpperCase()}`;
-    channel           = pusher.subscribe(channelName);
+    channel = pusher.subscribe(channelName);
 
     channel.bind("location-update", (data) => {
       setTrackerData((prev) => ({ ...prev, ...data }));
@@ -211,7 +211,7 @@ export default function TrackerViewPage({ params }) {
     calculatedDistance,   // ✅ FIX: was missing in mobile drawer
     gpsAccuracy,
     copiedLocation,
-    onCopyLocation:  copyLocation,
+    onCopyLocation: copyLocation,
     onGetDirections: openDirections,
   };
 
@@ -334,6 +334,10 @@ function TrackerDetails({
   const displayName =
     trackerData.name === "My Live Location" ? "Target Device" : trackerData.name;
 
+  const batteryDisplay = trackerData.battery != null
+    ? `${trackerData.battery}%`
+    : "N/A";
+
   return (
     <div className="space-y-6">
       {/* User info — desktop only (mobile shows it in drawer trigger) */}
@@ -365,7 +369,7 @@ function TrackerDetails({
         <StatCard
           icon={Battery}
           label="Battery"
-          value={`${trackerData.battery ?? 100}%`}
+          value={batteryDisplay}
         />
       </div>
 
